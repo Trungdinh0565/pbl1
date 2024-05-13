@@ -2,6 +2,7 @@
 #include<vector>
 using namespace std;
 int main(){
-    cout<<"ban da lam duoc! ";
+    cout<<"ban! ";
+    cout<<"tiep tuc";
     return 0;
 }
