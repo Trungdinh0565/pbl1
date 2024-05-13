@@ -26,6 +26,7 @@ cout<<"nhap so ngay cong: ";
 cin>>cn.ngaycong;
 cout<<"nhap he so luong: ";
 cin>>cn.heso;
+cout<<endl;
 
 }
 
