@@ -3,7 +3,7 @@
 #include<string>
 #include<iomanip>
 using namespace std;
- class cty_hanghoa{
+ class qly_hanghoa{
         private:    string tensp;
                     vector<pair<string,float>> sanpham;  
                     int n,soluong;
@@ -91,7 +91,7 @@ public:
         kh_bill(){
             tongtien = 0;
         }
-        void menukh(cty_hanghoa &hh){
+        void menukh(qly_hanghoa &hh){
             do{
                         cout<<"________________________"<<endl;
                         cout<<"|---MENU KHACH HANG:---|"<<endl;
@@ -108,7 +108,7 @@ public:
              } while (a != 3);
         }
 
-    void menukh1(cty_hanghoa &hh){
+    void menukh1(qly_hanghoa &hh){
          int stt1=0;
          if(a == 1){
           string name;
@@ -125,8 +125,9 @@ public:
                sp_chon.clear();
                sl.clear();
                do{
-                  cout<<"-Lua chon cua ban la:";
-                  cin>>kh_chon;
+                 do{
+                  cout<<"-San pham bạn muốn mua(theo DS):";
+                  cin>>kh_chon;} while (kh_chon < 1 ||kh_chon > hh.sanpham.size());
 
                   if(kh_chon == 0) break;
 
@@ -161,13 +162,6 @@ public:
          } 
 
     }
-
-
-
-
-
-
-
 };
 
 class cty_doanhthu{
@@ -177,7 +171,7 @@ class cty_doanhthu{
 
 
 int main(){
-    cty_hanghoa hh;
+    qly_hanghoa hh;
     kh_bill kh;
     hh.menusp();
     kh.menukh(hh);
