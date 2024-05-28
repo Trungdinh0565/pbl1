@@ -1,0 +1,374 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <iomanip>
+using namespace std;
+
+// Lưu các thuộc tính của sản phẩm.
+class sanpham {
+private:
+    string ten;
+    float gia;
+    int soluong;
+
+public:
+    // Constructor 3 tham số;
+    sanpham(string ten, float gia, int soluong) {
+        this->ten = ten;
+        this->gia = gia;
+        this->soluong = soluong;
+    }
+
+    // Các hàm get, set cần thiết để truy cập dữ liệu;
+    string getten() const { return ten; }
+    float getgia() const { return gia; }
+    int getsl() const { return soluong; }
+    void setsl1(int sl) { soluong = sl; }
+};
+
+// Kho lưu giữ nhiều sản phẩm.
+class kho_sp {
+private:
+    vector<sanpham> kho;
+    int a = 0;
+public:
+    // Đọc dữ liệu từ file quanlysanpham.txt;
+   void nhap(ifstream &ip) {
+        string s;
+        while (getline(ip, s)) {      // Trong khi dữ liệu từ file ip vẫn truyền được vào s thì tiếp tục chạy;
+            stringstream line(s);   // Copy dữ liệu từ s vào line;
+            string t;
+            float g;
+            int sl;
+            if (line >> t >> g >> sl) {       // Tách 1 dòng dữ liệu từ line thành dữ liệu cho 3 biến tên, giá, số lượng của sản phẩm;
+                kho.push_back(sanpham(t, g, sl));
+            } else {
+                cout << "loi dong";
+            }
+        }
+    }
+
+    // Menu quản lý sản phẩm.
+    void menu_qly() {
+        do {
+            cout << "________________________" << endl;
+            cout << "|----MENU HANG HOA:----|" << endl;
+            cout << "|1. Them san pham!     |" << endl; // dùng để nhập sản phẩm bán
+            cout << "|2. Xoa san pham!      |" << endl; // dùng để xóa sản phẩm ra khỏi danh sách
+            cout << "|3. Danh sach san pham!|" << endl; // in ra danh sách sản phẩm đã nhập
+            cout << "|4. Thoat!             |" << endl; // thoát khỏi menu sản phẩm
+            cout << "|======================|" << endl;
+            cout << "Lua chon cua ban la:";
+            cin >> a;
+            lc();
+        } while (a != 4);
+    }
+
+    // Hàm chức năng sau khi chọn từ menu quản lý.
+    void lc() {
+        int them = 0;
+        if (a == 1) {
+            cout << "nhap so luong san pham muon them: ";
+            cin >> them;
+            for (int i = 0; i < them; i++) {
+                string ten1;
+                float gia1;
+                int sl1;
+                cout << "nhap thong tin san pham thu " << i + 1 << ":" << endl;
+                cout << "ten san pham : ";
+                cin >> ten1;
+                cout << "gia: ";
+                cin >> gia1;
+                cout << "so luong: ";
+                cin >> sl1;
+                kho.push_back(sanpham(ten1, gia1, sl1)); // Thêm sản phẩm vào vector kho;
+                xuat();   // Cập nhật thay đổi lên file;
+            }
+        }
+
+        if (a == 2) {
+            if (kho.empty()) {
+                cout << "khong co san pham de xoa";
+            } else {
+                kho.pop_back(); // Xóa sản phẩm vừa thêm;
+                xuat();
+            }
+        }
+
+        // In danh sách sản phẩm trên ô terminal;
+        if (a == 3) {
+            if (kho.empty())
+                cout << "Danh sach trong!" << endl;
+            else {
+                cout << "_____________________________________" << endl;
+                cout << "|_____ _Danh_sach___san_pham________|" << endl;
+                cout << "| Ten       | Gia       | So Luong  |" << endl;
+                cout << "+++++++++++++++++++++++++++++++++++++" << endl;
+                for (auto& sp : kho) {
+                    cout << "| " << setw(10) << left << sp.getten() << "| " << setw(10) << fixed << setprecision(0) << sp.getgia() << "| " << setw(10) << sp.getsl() << "|" << endl;
+                }
+                cout << "_____________________________________" << endl;
+            }
+        }
+    }
+
+    // Cập nhật thông tin danh sách vào file;
+    void xuat() {
+        ofstream file("quanlysanpham.txt");
+        if (!file) {
+            cout << "file mo loi";
+            return;
+        }
+        for (auto sp : kho) {
+            file << sp.getten() << " " << fixed << setprecision(0) << sp.getgia() << " " << sp.getsl() << endl;
+        }
+        file.close();
+    }
+
+    // Hàm get kho;
+    vector<sanpham> getkho() {
+        return kho;
+    }
+
+    friend class Hoadon;
+};
+
+// Class người dùng và chứa các hàm liên quan.
+class Khachhang {
+private:
+    string ten;
+    int sdt;
+    bool loaikhach;
+
+public:
+    Khachhang(string ten, int sdt, bool loaikhach) {
+        this->ten = ten;
+        this->sdt = sdt;
+        this->loaikhach = loaikhach;
+    }
+
+    // Getter loại khách
+    bool getloaikhach() const {
+        return loaikhach;
+    }
+
+    // Getter tên
+    string getten() const {
+        return ten;
+    }
+
+    // Getter for số điện thoại
+    int getsdt() const {
+        return sdt;
+    }
+
+    // hàm hiển thị thông tin khách hàng
+    void thongtinkhachhang() const {
+        cout << "Ten khach hang: " << ten << endl;
+        cout << "So dien thoai : " << sdt << endl;
+        cout << "Loai khach hang: " << (loaikhach ? "Thanh vien" : "Khong phai thanh vien") << endl;
+    }
+};
+
+class quanlykhachangthanhvien {
+private:
+    vector<Khachhang> Thanhvien;
+
+    // đọc tên khách hàng từ file
+    void tenkhachhangthanhvien() {
+        ifstream infile("thanhvien.txt");
+        if (!infile) return;
+
+        string ten;
+        int sdt;
+        while (infile >> ten >> sdt) {
+            Thanhvien.push_back(Khachhang(ten, sdt, true));
+        }
+        infile.close();
+    }
+
+    // Lưa tên khách hàng thành viên thành một file
+    void luutrudanhsachthanhvien() {
+        ofstream outfile("thanhvien.txt");
+        for (const auto& thanhvien : Thanhvien) {
+            outfile << thanhvien.getten() << " " << thanhvien.getsdt() << endl;
+        }
+        outfile.close();
+    }
+
+public:
+    quanlykhachangthanhvien() {
+        tenkhachhangthanhvien();
+    }
+
+    ~quanlykhachangthanhvien() {
+        luutrudanhsachthanhvien();
+    }
+
+    // hàm thêm thành viên
+    void themthanhvien(const string& ten, const int& sdt) {
+        if (!loaikhach(sdt)) {
+            Thanhvien.push_back(Khachhang(ten, sdt, true));
+            cout << "Khach " << ten << " co so dien thoai: " << sdt << " Da dang ky thanh cong."<<endl;
+        } else {
+            cout << "Khach co so dien thoai " << sdt << " Da la thanh vien."<<endl;
+        }
+    }
+
+    // kiểm tra có phải sđt của khách hàng thành viên hay không
+    bool loaikhach(const int& sdt) const {
+        for (const auto& thanhvien : Thanhvien) {
+            if (thanhvien.getsdt() == sdt) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // get khách hàng với sđt
+    Khachhang khachhangvasdt(const int& sdt) const {
+        for (const auto& thanhvien : Thanhvien) {
+            if (thanhvien.getsdt() == sdt) {
+                return thanhvien;
+            }
+        }
+        return Khachhang("", 0, false);
+    }
+};
+
+// Class hóa đơn
+class Hoadon {
+private:
+    vector<sanpham> danhSachSP;
+    Khachhang khachhang;
+    float tongTien;
+    int klc,soluongmua;
+    vector<int> dschon;
+
+public:
+    Hoadon(const vector<sanpham>& dsSP, const Khachhang& kh) 
+        : danhSachSP(dsSP), khachhang(kh), tongTien(0) {}
+    void tinhTongTien(int i) {
+          sanpham sp=danhSachSP[i-1];
+            tongTien += sp.getgia() * sp.getsl();
+        if (khachhang.getloaikhach()) {
+            tongTien *= 0.8; // Giảm 20% cho thành viên
+        }
+    }
+    
+    void inHoadon() {
+        //sửa code in ra file bill txt
+        cout << "_____________________________________" << endl;
+        cout << "|______________HOA DON______________|" << endl;
+        cout << "| Ten khach hang: " << setw(35) << khachhang.getten() <<"|" << endl;
+        cout << "| So dien thoai : " << setw(35) << khachhang.getsdt() <<"|" << endl;
+        cout << "-------------------------------------" << endl;
+        cout << "|Danh sach san pham da mua:         |" << endl;
+        cout << "| Ten san pham | Gia | So luong | Tong |" << endl;
+        cout << "-------------------------------------" << endl;
+        for(int i = 0; i<danhSachSP.size(); i++) {
+           int lc1=dschon[i]-1 ; 
+           sanpham sp=danhSachSP[lc1];
+            cout << "| " << setw(12) << left << sp.getten() 
+                 << "| " << setw(3) << fixed << setprecision(0) << sp.getgia() 
+                 << "| " << setw(9) << sp.getsl() 
+                 << "| " << setw(5) << sp.getgia() * sp.getsl() << " |" << endl;
+        }
+        cout << "-------------------------------------" << endl;
+        cout << "| Tong tien: " << tongTien << " VND" << endl;
+        cout << "_____________________________________" << endl; 
+    }
+//them code dat hang
+    void dathang(){
+        int stt=0;
+                        cout << "______________________________________________" << endl;
+                        cout << "|___________Danh__sach___san__pham___________|" << endl;
+                        cout << "| stt |     Ten      |     Gia     |So Luong|" << endl;
+                        cout << "++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+                      for(const auto &sp : danhSachSP){ 
+                         stt++;
+                         cout << "| " << stt <<"."<< setw(5)<< "|" << setw(14) << left << sp.getten() << "| " << setw(13) << fixed << setprecision(0) << sp.getgia() << "| " << setw(8) << sp.getsl() << "|" << endl;
+                      }
+                        cout << "______________________________________" << endl;
+                        cout << "|---------Chon (0) de thoat!---------|" <<endl;
+                     do{
+                        cout << "|lua chon cua ban la(chon theo stt):";
+                        cin>>klc;
+                        dschon.push_back(klc);
+                        if(klc == 0) break;
+                        cout<<"Nhap so luong mua: "; 
+                        cin>>soluongmua;
+                        tinhTongTien(klc);
+                     } while(klc !=0);
+
+    }
+};
+
+class giaodienchinh {
+private:
+    kho_sp khosp;
+    quanlykhachangthanhvien qlkhtt;
+    int lchon;
+
+public:
+    void menugiaodien() {
+        ifstream ip("quanlysanpham.txt");
+        khosp.nhap(ip);
+        ip.close();
+        do {
+            cout << "-----------------------" << endl;
+            cout << "|---Giao dien chinh---|" << endl;
+            cout << "|---------------------|" << endl;
+            cout << "|1. Quan ly san pham  |" << endl;
+            cout << "|2. Dang ky thanh vien|" << endl;
+            cout << "|3. Tinh hoa don      |" << endl;
+            cout << "|4. Tat               |" << endl;
+            cout << "|=====================|" << endl;
+            cout << "Lua chon cua ban la:";
+            cin >> lchon;
+            chucnang();
+        } while (lchon != 4);
+    }
+
+    void chucnang() {
+        if (lchon == 1) {
+            khosp.menu_qly();
+        }
+        if (lchon == 2) {
+            string ten;
+            int sdt;
+            cout << "Nhap ten thanh vien moi: ";
+            cin >> ten;
+            cout << "Nhap so dien thoai: ";
+            cin >> sdt;
+            qlkhtt.themthanhvien(ten, sdt);
+        }
+        if (lchon == 3) {
+            string ten;
+            int sdt;
+            cout << "Nhap ten khach hang: ";
+            cin >> ten;
+            cout << "Nhap so dien thoai: ";
+            cin >> sdt;
+
+            Khachhang khach = qlkhtt.khachhangvasdt(sdt);
+            if (khach.getten() == "") {
+                khach = Khachhang(ten, sdt, false);
+            }
+
+            vector<sanpham> danhSachSP = khosp.getkho();
+            Hoadon hoadon(danhSachSP, khach);
+            //hoadon.tinhTongTien();
+            hoadon.dathang();
+            hoadon.inHoadon();
+        }
+    }
+};
+
+int main() {
+    giaodienchinh gdc;
+    gdc.menugiaodien();
+    return 0;
+}
