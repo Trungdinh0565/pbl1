@@ -1,0 +1,168 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+// Enum để định nghĩa các loại xe
+enum LoaiXe {
+    XE_DAP,
+    XE_MAY,
+    O_TO
+};
+
+// Struct để chứa thông tin về người sử dụng
+struct NguoiSuDung {
+    std::string ten;
+    int tuoi;
+};
+
+// Lớp cơ sở Xe
+class Xe {
+protected:
+    std::string nhanHieu;
+    LoaiXe loai;
+    NguoiSuDung chuSoHuu;
+
+public:
+    Xe() {}
+
+    Xe(std::string nhanHieu, LoaiXe loai, NguoiSuDung chuSoHuu)
+        : nhanHieu(nhanHieu), loai(loai), chuSoHuu(chuSoHuu) {}
+
+    virtual void nhapThongTin() {
+        std::cout << "Nhap nhan hieu: ";
+        std::getline(std::cin, nhanHieu);
+        std::cout << "Nhap ten chu so huu: ";
+        std::getline(std::cin, chuSoHuu.ten);
+        std::cout << "Nhap tuoi chu so huu: ";
+        std::cin >> chuSoHuu.tuoi;
+        std::cin.ignore();  // Ignore newline character after integer input
+    }
+
+    virtual void hienThiThongTin() const {
+        std::cout << "Nhan hieu: " << nhanHieu << "\n";
+        std::cout << "Loai xe: " << (loai == XE_DAP ? "Xe dap" : loai == XE_MAY ? "Xe may" : "O to") << "\n";
+        std::cout << "Chu so huu: " << chuSoHuu.ten << ", Tuoi: " << chuSoHuu.tuoi << "\n";
+    }
+
+    // Hàm ảo để các lớp dẫn xuất có thể ghi đè
+    virtual void loaiDongCo() const = 0;
+};
+
+// Lớp dẫn xuất XeMay
+class XeMay : public Xe {
+private:
+    std::string loaiDongCoXeMay;
+
+public:
+    XeMay() : Xe() {}
+
+    XeMay(std::string nhanHieu, NguoiSuDung chuSoHuu, std::string loaiDongCo)
+        : Xe(nhanHieu, XE_MAY, chuSoHuu), loaiDongCoXeMay(loaiDongCo) {}
+
+    void nhapThongTin() override {
+        Xe::nhapThongTin();
+        loai = XE_MAY;
+        std::cout << "Nhap loai dong co xe may: ";
+        std::getline(std::cin, loaiDongCoXeMay);
+    }
+
+    void loaiDongCo() const override {
+        std::cout << "Loai dong co xe may: " << loaiDongCoXeMay << "\n";
+    }
+};
+
+// Lớp dẫn xuất OTo
+class OTo : public Xe {
+private:
+    std::string loaiDongCoOTo;
+
+public:
+    OTo() : Xe() {}
+
+    OTo(std::string nhanHieu, NguoiSuDung chuSoHuu, std::string loaiDongCo)
+        : Xe(nhanHieu, O_TO, chuSoHuu), loaiDongCoOTo(loaiDongCo) {}
+
+    void nhapThongTin() override {
+        Xe::nhapThongTin();
+        loai = O_TO;
+        std::cout << "Nhap loai dong co o to: ";
+        std::getline(std::cin, loaiDongCoOTo);
+    }
+
+    void loaiDongCo() const override {
+        std::cout << "Loai dong co o to: " << loaiDongCoOTo << "\n";
+    }
+};
+
+// Lớp để quản lý danh sách xe
+class QuanLyXe {
+private:
+    std::vector<Xe*> *danhSachXe;
+
+public:
+    static int soLuongXe;
+
+    QuanLyXe() {
+        danhSachXe = new std::vector<Xe*>();
+    }
+
+    void themXe(Xe* xe) {
+        danhSachXe->push_back(xe);
+        soLuongXe++;
+    }
+
+    void nhapXe() {
+        int loai;
+        std::cout << "Nhap loai xe (0: Xe dap, 1: Xe may, 2: O to): ";
+        std::cin >> loai;
+        std::cin.ignore();  // Ignore newline character after integer input
+
+        Xe* xe = nullptr;
+        if (loai == XE_MAY) {
+            xe = new XeMay();
+        } else if (loai == O_TO) {
+            xe = new OTo();
+        }
+
+        if (xe != nullptr) {
+            xe->nhapThongTin();
+            themXe(xe);
+        }
+    }
+
+    void hienThiTatCaXe() const {
+        for (const auto& xe : *danhSachXe) {
+            xe->hienThiThongTin();
+            xe->loaiDongCo();
+            std::cout << "-------------------------\n";
+        }
+    }
+
+    ~QuanLyXe() {
+        for (auto& xe : *danhSachXe) {
+            delete xe;
+        }
+        delete danhSachXe;
+    }
+};
+
+// Khởi tạo static member
+int QuanLyXe::soLuongXe = 0;
+
+int main() {
+    QuanLyXe quanLyXe;
+    int soLuong;
+    std::cout << "Nhap so luong xe: ";
+    std::cin >> soLuong;
+    std::cin.ignore();  // Ignore newline character after integer input
+
+    for (int i = 0; i < soLuong; ++i) {
+        std::cout << "Nhap thong tin cho xe thu " << i + 1 << ":\n";
+        quanLyXe.nhapXe();
+    }
+
+    std::cout << "So luong xe hien co: " << QuanLyXe::soLuongXe << "\n";
+    quanLyXe.hienThiTatCaXe();
+
+    return 0;
+}
